@@ -1,0 +1,12 @@
+transformers==4.5.1
+allennlp==2.4.0
+omegaconf==2.0.1rc11
+opencv-python==4.2.0.32
+imagesize==1.2.0
+yacs==0.1.8
+scikit-image==0.17.2
+git+https://github.com/salaniz/pycocoevalcap
+tensorboard>=2.3.0
+tqdm>=4.48
+boto3>=1.16
+h5py>=2.10.0
