@@ -34,11 +34,7 @@ def main():
   model = load_model(run, device=device)
 
   print("Done, setting up inputs...")
-  try:
-    # For coco-images the image_id is an integer
-    image_id = int(args.image_id)
-  except ValueError:
-    image_id = args.image_id
+  image_id = args.image_id
 
   if args.answer_options:
     # This tell the model what the answer options are, and to do re-ranking
