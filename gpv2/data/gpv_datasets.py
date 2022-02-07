@@ -255,7 +255,7 @@ class GpvDataset(Dataset):
     Task.LOCALIZATION: UNSEEN2,
   }
 
-  def __init__(self, task: Task, split: str, gpv_split=True, sample=None):
+  def __init__(self, task: Task, split: str, gpv_split=False, sample=None):
     if split not in {"test", "val", "train"}:
       raise ValueError(split)
     self.sample = sample
