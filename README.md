@@ -1,5 +1,6 @@
-# GPV 2
-This is the codebase for GPV2, (TODO arxiv link)
+# Webly Supervised Concept Expansion for General Purpose Vision Models
+This is the codebase for [GPV 2](https://prior.allenai.org/projects/gpv2) from our paper [Webly Supervised Concept Expansion for General Purpose Vision Models](http://arxiv.org/abs/2202.02317).
+Code for the web data is in a [separate repo](https://prior.allenai.org/projects/gpv2). 
 
 # Installation
 ## Code
