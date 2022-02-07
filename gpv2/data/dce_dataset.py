@@ -74,7 +74,7 @@ class DceDataset(Dataset):
       if self.task == Task.VQA:
         answers = ex["meta"]["new_answers"]
         out.append(VqaExample(
-          f"opensce-vqa-{i}", f"dce/{self.part}/visual_genome/{image_id}.jpg", ex_input["task_text"],
+          f"dce-vqa-{i}", f"dce/{self.part}/visual_genome/{image_id}.jpg", ex_input["task_text"],
           answers, meta={"gpv1-unseen": ex["meta"]["categories"]}))
       elif self.task in {Task.CLS, Task.CLS_IN_CONTEXT}:
         query_box = ex_input["task_coordinates"]
@@ -87,12 +87,12 @@ class DceDataset(Dataset):
           crop = convert_xyxy_to_xywh(query_box[0])
           query_box = None
         out.append(ClsExample(
-          f"opensce-cls-{i}", f"dce/{self.part}/open_images/{image_id}.jpg",
+          f"dce-cls-{i}", f"dce/{self.part}/open_images/{image_id}.jpg",
           ex["output"]["text"], query_box=query_box, crop=crop,
           meta={"gpv1-unseen": ex["meta"]["categories"]}))
       elif self.task == Task.CAPTIONING:
         captions = Caption(f"opensce-cap-{i}", None, meta=None)
-        out.append(CaptioningExample(f"opensce-cap-{i}", f"dce/{self.part}/nocaps/{image_id}.jpg", [captions], meta=None))
+        out.append(CaptioningExample(f"dce-cap-{i}", f"dce/{self.part}/nocaps/{image_id}.jpg", [captions], meta=None))
       elif self.task == Task.LOCALIZATION:
         outputs = np.array(ex["output"]["coordinates"])
 
@@ -100,7 +100,7 @@ class DceDataset(Dataset):
         boxes = torchvision.ops.box_convert(torch.as_tensor(outputs), "xyxy", "xywh").numpy()
 
         out.append(LocalizationExample(
-          f"opensce-loc-{i}", f"dce/{self.part}/open_images/{image_id}.jpg", boxes,
+          f"dce-loc-{i}", f"dce/{self.part}/open_images/{image_id}.jpg", boxes,
           ex_input["task_text"], meta={}
         ))
       else:
