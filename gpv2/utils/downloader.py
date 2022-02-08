@@ -9,6 +9,8 @@ from typing import List, Tuple
 
 import boto3
 import requests
+from botocore import UNSIGNED
+from botocore.config import Config
 from tqdm import tqdm
 
 from gpv2.utils.py_utils import ensure_dir_exists
@@ -71,7 +73,7 @@ def download_s3_folder(bucket_name, s3_folder, local_dir):
       s3_folder: the folder path in the s3 bucket
       local_dir: a relative or absolute directory path in the local file system
   """
-  s3 = boto3.client('s3')
+  s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
   for obj in s3.list_objects(Bucket=bucket_name, Prefix=s3_folder)['Contents']:
     key = obj['Key']
     target = join(local_dir, relpath(key, s3_folder))
@@ -86,7 +88,7 @@ def download_s3_folder(bucket_name, s3_folder, local_dir):
 def download_from_s3(bucket, key, out, progress_bar=True):
   """Download s3 file at `bucket`/`key` to `out`"""
   logging.info(f"Downloading {bucket}/{key} to {out}")
-  s3 = boto3.client('s3')
+  s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
   if not exists(dirname(out)):
     makedirs(dirname(out))
 
