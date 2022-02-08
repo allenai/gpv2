@@ -44,11 +44,11 @@ The command lines args for the script can download particular subsets if you don
 everything.
 
 ## Models
-We have currently released GPV-2 trained with and without Web data:
-
+We have currently released three GPV 2 models:
 
 - With web: s3://ai2-prior-gpv/public/gpv2-models/gpv2
 - Without web: s3://ai2-prior-gpv/public/gpv2-models/gpv2-noweb
+- CC pre-training only (not fine-tuning): s3://ai2-prior-gpv/public/gpv2-models/cc-pretrained/
 
 To download, use aws s3 cp with --recursive:
 
@@ -64,17 +64,23 @@ added we complete the release process.
 To train on devices 0 and 1 of your machine without web data:
 
 ```
-python exp/ours/experiments/train_t5.py --device 0 1 --num_workers 3 --task gpv2 --output_dir /path/to/output/dir
+python gpv2/experiments/train_gpv2.py --device 0 1 --task all --output_dir /path/to/output/dir
 ```
 
 For debugging purposes I recommend using the --debug flag and reducing the number of devices and 
 workers to 0 which will get you much faster startup times and better error messages:
 
 ```
-python exp/ours/experiments/train_t5.py --device 0 --num_workers 0 --task gpv2 --output_dir /path/to/output/dir --debug small
+python gpv2/experiments/train_gpv2.py --device 0 1 ƒƒ--task all --output_dir /path/to/output/dir --output_dir /path/to/output/dir --debug small
 ```
 
 which will run the model on a small sample of the data and without complicated distributed training.
+
+To run from our CC pre-trained checkpoint, download the cc-pretrained model and use the `--init_from` flag
+
+```
+python gpv2/experiments/train_gpv2.py --device 0 1 --task all --output_dir /path/to/output/dir --init_from --init_from models/cc-pretrained/r0/state-ep8.pth
+```
 
 # Eval
 
