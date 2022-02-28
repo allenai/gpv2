@@ -2,17 +2,21 @@
 
 import argparse
 import logging
+import os
+import shutil
 import tarfile
 import tempfile
 from os import makedirs
-from os.path import exists, join
+from os.path import exists, join, dirname
+
+from tqdm import tqdm
 
 from gpv2 import file_paths
 from gpv2.data.dataset import Task
 from gpv2.data.dce_dataset import DceDataset
 from gpv2.utils import py_utils, image_utils
 from gpv2.utils.downloader import download_zip, download_from_s3, download_s3_folder, \
-  download_to_file, download_files
+  download_to_file, download_images
 
 GPV_DATA = "https://ai2-prior-gpv.s3-us-west-2.amazonaws.com/public/coco_original_and_sce_splits.zip"
 
@@ -50,6 +54,7 @@ def download_dce_images(n_procs=15):
     raise ValueError("Download DCE annotations firsts")
 
   targets = []
+  open_images = []
   for task in Task:
     for part in ["val", "test"]:
       for ex in DceDataset(task, part).load():
@@ -59,18 +64,50 @@ def download_dce_images(n_procs=15):
         if task == Task.VQA:
           # URL for visual genome images
           url = f"https://cs.stanford.edu/people/rak248/{'/'.join(ex.image_id.split('/')[-2:])}"
+          targets.append((url, image_file))
         else:
           # TODO Downloading s3 data from the URL seems pretty slow
           # URL for open-images
-          url = f"https://open-images-dataset.s3.amazonaws.com/validation/{ex.image_id.split('/')[-1]}"
-        targets.append((url, image_file))
+          open_images.append((ex.image_id, image_file))
 
-  if len(targets) == 0:
+  if len(targets) == 0 and len(open_images) == 0:
     logging.info(f"DCE images already exist")
     return
 
-  logging.info("Downloading DCE images...")
-  download_files(targets, n_procs=n_procs)
+  if len(targets) > 0:
+    logging.info("Downloading visual genome images...")
+    download_images(targets, n_procs=n_procs)
+
+  if len(open_images) > 0:
+    logging.info("Downloading OpenImages images...")
+
+    # Use fifty one to download since these should be more stable then hard-coded URLs
+    from fiftyone.zoo import load_zoo_dataset
+
+    fifty_one_image_id_to_file = {}
+    for image_id, file in open_images:
+      fifty_one_image_id_to_file[image_id.split("/")[-1][:-4]] = file
+
+    image_ids = list(fifty_one_image_id_to_file.keys())
+    logging.info(f"Download {len(open_images)} images from OpenImages fifty one model zoo")
+    dataset = load_zoo_dataset(
+      "open-images-v6",
+      label_types=[],
+      splits=["validation", "test"],
+      image_ids=image_ids
+    )
+    if len(dataset) != len(fifty_one_image_id_to_file):
+      raise RuntimeError("Missing images from fifty")
+
+    # Might be ideal to just use their images directly, but our code is setup ot just
+    # use an image directory so we copy the images over
+    logging.info("Copying files to expected filepaths...")
+    for ex in tqdm(dataset, ncols=100, desc="copy"):
+      path = fifty_one_image_id_to_file[ex.ground_truth]
+      os.makedirs(dirname(path), exist_ok=True)
+      source = ex.filepath
+      shutil.copy(source, path)
+
 
 
 VAL_NOCAPS_URL = "https://s3.amazonaws.com/nocaps/nocaps_val_image_info.json"

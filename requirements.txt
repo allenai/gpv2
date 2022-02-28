@@ -10,3 +10,4 @@ tensorboard>=2.3.0
 tqdm>=4.48
 boto3>=1.16
 h5py>=2.10.0
+fiftyone

@@ -53,12 +53,19 @@ def _download(x):
   r = requests.get(url, allow_redirects=True)
 
   with tempfile.NamedTemporaryFile(delete=False) as tmp_f:
+    # Hacky sanity check to help make sure we actually got an image
+    try:
+      header = r.content[:20].decode("utf-8").strip()
+      if header.startswith("<html") or header.startswith("<?xml"):
+        raise ValueError(f"Unexpected non-image response from {url}: {header}")
+    except UnicodeError:
+      pass
     tmp_f.write(r.content)
     tmp_f.close()
     os.rename(tmp_f.name, output_file)
 
 
-def download_files(images: List[Tuple[str, str]], n_procs=10):
+def download_images(images: List[Tuple[str, str]], n_procs=10):
   with Pool(n_procs) as p:
     list(tqdm(p.imap(_download, images), total=len(images), ncols=100))
 
