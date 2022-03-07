@@ -6,6 +6,7 @@ import os
 import shutil
 import tarfile
 import tempfile
+from collections import defaultdict
 from os import makedirs
 from os.path import exists, join, dirname
 
@@ -84,9 +85,9 @@ def download_dce_images(n_procs=15):
     # Use fifty one to download since these should be more stable then hard-coded URLs
     from fiftyone.zoo import load_zoo_dataset
 
-    fifty_one_image_id_to_file = {}
+    fifty_one_image_id_to_file = defaultdict(list)
     for image_id, file in open_images:
-      fifty_one_image_id_to_file[image_id.split("/")[-1][:-4]] = file
+      fifty_one_image_id_to_file[image_id.split("/")[-1][:-4]].append(file)
 
     image_ids = list(fifty_one_image_id_to_file.keys())
     logging.info(f"Download {len(open_images)} images from OpenImages fifty one model zoo")
@@ -103,11 +104,11 @@ def download_dce_images(n_procs=15):
     # use an image directory so we copy the images over
     logging.info("Copying files to expected filepaths...")
     for ex in tqdm(dataset, ncols=100, desc="copy"):
-      path = fifty_one_image_id_to_file[ex.ground_truth]
-      os.makedirs(dirname(path), exist_ok=True)
-      source = ex.filepath
-      shutil.copy(source, path)
-
+      paths = fifty_one_image_id_to_file[ex.ground_truth]
+      for path in paths:
+        os.makedirs(dirname(path), exist_ok=True)
+        source = ex.filepath
+        shutil.copy(source, path)
 
 
 VAL_NOCAPS_URL = "https://s3.amazonaws.com/nocaps/nocaps_val_image_info.json"
