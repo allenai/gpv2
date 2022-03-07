@@ -147,10 +147,7 @@ class VinvlCollate(ImageCollater):
     for example in batch:
       # Different image reading methods return subtly different outputs
       # for the same image, so we mimic the one used in vimvl (cv2.imread) by default
-      if self.read_image_mode == "load_image_data":
-        img, size = image_utils.load_image_data(example, None)
-        img = F.to_pil_image(img)
-      elif self.read_image_mode == "pil":
+      if self.read_image_mode == "pil":
         img = image_utils.load_image_pil(example.image_id, example.crop)
       elif self.read_image_mode == "vinvl":
         if hasattr(example, "image_file"):
@@ -192,9 +189,10 @@ class VinvlCollate(ImageCollater):
 
     # VinVL expects boxes to be relative to the image tensors
     for qbox, image in zip(qboxes, image_tensors):
-      tensor_h, tensor_w = image.size()[-2:]
-      size_f = torch.tensor([tensor_w, tensor_h, tensor_w, tensor_h])
-      qbox *= size_f.unsqueeze(0)
+      if qbox is not None:
+        tensor_h, tensor_w = image.size()[-2:]
+        size_f = torch.tensor([tensor_w, tensor_h, tensor_w, tensor_h])
+        qbox *= size_f.unsqueeze(0)
 
     images = to_image_list(image_tensors)
     return dict(images=images, query_boxes=qboxes), targets
