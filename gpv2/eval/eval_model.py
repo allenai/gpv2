@@ -134,7 +134,7 @@ def main():
       if len(k) == 1:
         del stats[k[0]]
 
-      table = [[str(r) for r in stats], [val_to_str(k, v) for k, v in stats.items()]]
+      table = [[str(r) for r in stats], [val_to_str(v, "%0.3f") for k, v in stats.items()]]
       print("*" * 20 + " " + dataset.get_name() + " " + "*"*20)
       print(py_utils.table_string(table))
 
