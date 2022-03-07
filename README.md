@@ -71,7 +71,7 @@ For debugging purposes I recommend using the --debug flag and reducing the numbe
 workers to 0 which will get you much faster startup times and better error messages:
 
 ```
-python gpv2/experiments/train_gpv2.py --device 0 1 ƒƒ--task all --output_dir /path/to/output/dir --output_dir /path/to/output/dir --debug small
+python gpv2/experiments/train_gpv2.py --device 0 1 --task all --output_dir /path/to/output/dir --debug small
 ```
 
 which will run the model on a small sample of the data and without complicated distributed training.
@@ -79,7 +79,7 @@ which will run the model on a small sample of the data and without complicated d
 To run from our CC pre-trained checkpoint, download the cc-pretrained model and use the `--init_from` flag
 
 ```
-python gpv2/experiments/train_gpv2.py --device 0 1 --task all --output_dir /path/to/output/dir --init_from --init_from models/cc-pretrained/r0/state-ep8.pth
+python gpv2/experiments/train_gpv2.py --device 0 1 --task all --output_dir /path/to/output/dir --init_from models/cc-pretrained/r0/state-ep8.pth
 ```
 
 # Eval
@@ -127,7 +127,7 @@ There are three steps to doing this:
 2. Run:
 
     ```
-    python gpv2/build_image_features/precompute_image_features.py /path/to/image_directory your_dataset_name --output features.hdf5
+    **python gpv2/build_image_features/precompute_image_features.py /path/to/image_directory your_dataset_name --output features.hdf5**
     ```
    where `/path/to/image_directory` should point to your image directory and `your_dataset_name` should
    be a name for the set of images you are adding. The script has parameters to control the batch size and run across multiple devices
